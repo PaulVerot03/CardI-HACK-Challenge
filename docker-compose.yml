@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  training-interface:
+    # Build the Docker image directly from your GitHub repository.
+    # IMPORTANT: Replace the URL with your actual GitHub repository URL.
+    build:
+      context: https://github.com/your-username/your-repo-name.git#main
+    
+    container_name: training-interface
+    
+    ports:
+      - "5000:5000"
+      
+    volumes:
+      # Use named volumes to persist data. Docker and Dockge will manage these.
+      - training_data:/app/data
+      - training_output:/app/output
+      
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+# Define the named volumes
+volumes:
+  training_data:
+  training_output:

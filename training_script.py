@@ -19,12 +19,14 @@ TARGET_SEVERITY = 'OUTCOME SEVERITY'
 TARGET_MACE = 'OUTCOME MACE'
 
 MODEL_DIR = 'models'
+OUTPUT_DIR = 'output'
+DATA_DIR = 'data'
 
 def load_data():
     """Loads the training and testing data."""
     logging.info("Loading data...")
-    train_df = pd.read_csv('train.csv')
-    test_df = pd.read_csv('test.csv')
+    train_df = pd.read_csv(os.path.join(DATA_DIR, 'train.csv'))
+    test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'))
     logging.info("Data loaded successfully.")
     return train_df, test_df
 
@@ -40,6 +42,10 @@ def run_training(n_estimators=1000, n_jobs=2, timestamp=None):
     # --- Timestamp for output files ---
     TIMESTAMP = timestamp if timestamp else datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    # --- Create output and data directories ---
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(DATA_DIR, exist_ok=True)
+
     # --- Configure logging ---
     # Remove existing handlers to avoid duplication if called multiple times
     for handler in logging.root.handlers[:]:
@@ -49,7 +55,7 @@ def run_training(n_estimators=1000, n_jobs=2, timestamp=None):
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler(f"training_{TIMESTAMP}.log"),
+            logging.FileHandler(os.path.join(OUTPUT_DIR, f"training_{TIMESTAMP}.log")),
             logging.StreamHandler()
         ]
     )
@@ -135,7 +141,7 @@ def predict_and_generate_submission(test_df, severity_model_path, mace_model_pat
     submission_df['OUTCOME_MACE'] = mace_predictions
     submission_df['OUTCOME_MACE'] = submission_df['OUTCOME_MACE'].astype(int)
     
-    submission_path = f'submission_{timestamp}.csv'
+    submission_path = os.path.join(OUTPUT_DIR, f'submission_{timestamp}.csv')
     submission_df.to_csv(submission_path, index=False)
     logging.info(f"Submission file created at: {submission_path}")
     logging.info(f"Submission head:\n{submission_df.head()}")
