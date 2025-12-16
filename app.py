@@ -23,10 +23,8 @@ def setup_directories():
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-@app.before_first_request
-def before_first_request():
-    """Run before the first request."""
-    setup_directories()
+# Run setup on startup
+setup_directories()
 
 @app.route('/')
 def index():
